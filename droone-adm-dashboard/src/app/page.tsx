@@ -1,101 +1,97 @@
-import Image from "next/image";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
+type TableData = string[][];
+
+const LOCAL_STORAGE_KEY = 'tableData';
+const COOKIE_KEY = 'savedPage';
+
+// Componente separado para o loader
+const Loader = () => {
+  useEffect(() => {
+    import('ldrs').then(({ jelly }) => jelly.register());
+  }, []);
+
+  return <l-jelly size="40" speed="0.9" color="white"></l-jelly>;
+};
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [tabelas, setData] = useState<TableData>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    setIsClient(true);
+
+    const loadInitialData = () => {
+      const savedPage = Cookies.get(COOKIE_KEY);
+      if (savedPage) {
+        setData(JSON.parse(savedPage));
+        return;
+      }
+      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedData) {
+        setData(JSON.parse(storedData));
+      }
+    };
+
+    loadInitialData();
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get<TableData>('https://490c183a-566a-4c63-9213-eab0e1ab848e-00-2kimq7610alg4.worf.replit.dev/tables/');
+        console.log('Data received from API:', response.data);
+
+        const currentData = Cookies.get(COOKIE_KEY) || localStorage.getItem(LOCAL_STORAGE_KEY) || '[]';
+        if (JSON.stringify(response.data) !== currentData) {
+          setData(response.data);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(response.data));
+          Cookies.set(COOKIE_KEY, JSON.stringify(response.data));
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (!isClient) {
+    return null; // ou um loader, se preferir
+  }
+
+  return (
+    <div className="flex flex-col justify-center items-center min-w-60 min-h-screen bg-gray-900 dark:bg-gray-900">
+      <h1 className="text-5xl font-bold font-jost text-white my-6 text-center">
+        Droone Dashboard
+      </h1>
+      {isLoading && (
+        <div className="fixed top-4 right-4 z-50">
+          <Loader />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
+      <table className="table-auto w-3/5 text-left text-sm text-gray-500 dark:text-gray-400 font-sans font-medium shadow-md border-collapse border border-gray-300 rounded-lg">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th className="py-3 px-6 font-bold text-lg">Tabela</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
+          {tabelas.map((tabela, index) => (
+            <tr key={index} className="hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={() => window.location.href = `/${tabela}/`}>                
+              <td className="py-3 px-6 font-medium text-gray-900 dark:text-gray-100">
+                {tabela}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
