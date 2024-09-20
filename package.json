@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "next": "^14.2.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "vite": "^5.4.4"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.11"
+  },
+  "name": "droone-adm-dashboard",
+  "version": "1.0.0",
+  "description": "\"droone dashboard\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vj-bots/droone-adm-dashboard.git"
+  },
+  "author": "Droone",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vj-bots/droone-adm-dashboard/issues"
+  },
+  "homepage": "https://github.com/vj-bots/droone-adm-dashboard#readme"
+}
